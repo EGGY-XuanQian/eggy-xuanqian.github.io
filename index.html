@@ -2,10 +2,17 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
-  <title>Code list</title>
+  <title>文件下载中心</title>
 
-  <!-- Google Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+  <!-- 自定义字体（来自你仓库） -->
+  <style>
+    @font-face {
+      font-family: 'U5Font';
+      src: url('./Web/U5Font_Round_7744b500.ttf') format('truetype');
+      font-weight: normal;
+      font-style: normal;
+    }
+  </style>
 
   <!-- Google Material Icons -->
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
@@ -15,41 +22,67 @@
 
   <style>
     body {
-      font-family: 'Roboto', sans-serif;
+      font-family: 'U5Font', sans-serif;
       background-color: #f5f5f5;
     }
+
     nav {
       background-color: #4285F4;
     }
+
     .brand-logo {
       display: flex;
       align-items: center;
       gap: 8px;
+      font-size: 1.4rem;
     }
+
     .material-symbols-outlined {
-      font-size: 28px;
+      font-size: 24px;
+      line-height: 24px;
+      vertical-align: middle;
     }
+
     .card-title {
-      font-size: 1.2rem;
+      font-size: 1.1rem;
       font-weight: 500;
       display: flex;
       align-items: center;
       gap: 10px;
     }
+
     .download-btn {
       background-color: #34A853 !important;
     }
-    .header-title {
-      margin-top: 40px;
-      font-weight: 400;
-      color: #333;
+
+    .file-tag {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      color: white;
+      margin-bottom: 8px;
+    }
+
+    .search-box {
+      margin: 20px 0;
+    }
+
+    /* 手机端优化 */
+    @media (max-width: 600px) {
+      .card-title {
+        font-size: 1rem;
+      }
+      .material-symbols-outlined {
+        font-size: 22px;
+      }
     }
   </style>
 </head>
 
 <body>
 
-  <!-- 顶部导航栏（无表情包） -->
+  <!-- 顶部导航栏 -->
   <nav>
     <div class="nav-wrapper container">
       <a href="#" class="brand-logo">
@@ -60,12 +93,19 @@
   </nav>
 
   <div class="container">
-    <h4 class="center-align header-title">Code 文件夹内容</h4>
+
+    <!-- 搜索框 -->
+    <div class="row search-box">
+      <div class="input-field col s12">
+        <input id="search" type="text" placeholder="搜索文件...">
+      </div>
+    </div>
+
+    <h5 class="center-align">Code 文件夹内容</h5>
     <div id="file-list" class="row"></div>
   </div>
 
   <script>
-    // 根据文件类型选择图标
     function getIconByFileType(name) {
       const ext = name.split('.').pop().toLowerCase();
 
@@ -79,8 +119,15 @@
       return "insert_drive_file";
     }
 
+    function getTagColor(ext) {
+      if (["png","jpg","jpeg","gif","svg"].includes(ext)) return "#1E88E5";
+      if (["zip","rar","7z"].includes(ext)) return "#8E24AA";
+      if (["txt","md","json","xml"].includes(ext)) return "#43A047";
+      if (["mp4","mov","avi"].includes(ext)) return "#E53935";
+      return "#757575";
+    }
+
     async function loadFiles() {
-      // 你的仓库 + Code 文件夹
       const repo = "EGGY-XuanQian/eggy-xuanqian.github.io";
       const path = "Code";
 
@@ -90,19 +137,22 @@
       const list = document.getElementById("file-list");
 
       files.forEach(file => {
+        const ext = file.name.split('.').pop().toLowerCase();
         const icon = getIconByFileType(file.name);
+        const tagColor = getTagColor(ext);
 
         const card = document.createElement("div");
         card.className = "col s12 m6 l4";
 
         card.innerHTML = `
-          <div class="card">
+          <div class="card hoverable">
             <div class="card-content">
+              <span class="file-tag" style="background:${tagColor}">${ext.toUpperCase()}</span>
               <span class="card-title">
                 <span class="material-symbols-outlined">${icon}</span>
                 ${file.name}
               </span>
-              <p>点击下方按钮下载该文件。</p>
+              <p>大小：${(file.size / 1024).toFixed(1)} KB</p>
             </div>
             <div class="card-action">
               <a class="btn download-btn" href="${file.download_url}" download>下载</a>
@@ -113,6 +163,17 @@
         list.appendChild(card);
       });
     }
+
+    // 搜索功能
+    document.getElementById("search").addEventListener("input", function () {
+      const keyword = this.value.toLowerCase();
+      const cards = document.querySelectorAll(".card");
+
+      cards.forEach(card => {
+        const title = card.querySelector(".card-title").innerText.toLowerCase();
+        card.parentElement.style.display = title.includes(keyword) ? "" : "none";
+      });
+    });
 
     loadFiles();
   </script>
