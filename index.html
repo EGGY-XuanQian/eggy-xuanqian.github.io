@@ -1,1108 +1,1195 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>文件下载中心(BETA)</title>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
-  <style>
-    @font-face {
-      font-family: 'U5Font';
-      src: url('https://github.com/EGGY-XuanQian/eggy-xuanqian.github.io/raw/refs/heads/main/Web/U5Font_Round_7744b500.ttf') format('truetype');
-      font-weight: normal;
-      font-style: normal;
-      font-display: swap;
-    }
-    * { 
-      font-family: 'U5Font' !important; 
-      box-sizing: border-box; 
-      margin:0; 
-      padding:0; 
-    }
-    :root { 
-      --google-blue: #4285f4; 
-      --google-light-blue: #e8f0fe; 
-      --gray-50: #f9fafb; 
-      --gray-100: #f1f3f4; 
-      --gray-200: #e0e0e0; 
-      --gray-500: #5f6368; 
-      --gray-700: #3c4043; 
-      --gray-800: #202124; 
-      --animate-duration: 0.25s;
-      --card-radius: 8px;
-      --card-shadow: 0 1px 2px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.1);
-      --card-hover-shadow: 0 4px 8px rgba(0,0,0,0.12), 0 2px 4px rgba(0,0,0,0.08);
-    }
-    @keyframes fadeInScale { from { opacity:0; transform:scale(0.98); } to { opacity:1; transform:scale(1); } }
-    @keyframes fadeOutScale { from { opacity:1; transform:scale(1); } to { opacity:0; transform:scale(0.98); } }
-    @keyframes slideIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
-    .animate-fade-in { animation: fadeInScale var(--animate-duration) cubic-bezier(0.4, 0, 0.2, 1) forwards; }
-    .animate-fade-out { animation: fadeOutScale var(--animate-duration) cubic-bezier(0.4, 0, 0.2, 1) forwards; }
-    .animate-slide-in { animation: slideIn var(--animate-duration) cubic-bezier(0.4, 0, 0.2, 1) forwards; }
-    body { background:var(--gray-50); }
-    /* 导航栏（参考谷歌云端硬盘顶部栏） */
-    .nav-wrapper { 
-      display:flex; 
-      align-items:center; 
-      justify-content:space-between; 
-      height:64px; 
-      background:white; 
-      border-bottom:1px solid var(--gray-200); 
-      padding:0 24px; 
-      width:100%; 
-      position: fixed; 
-      top: 0; 
-      left: 0; 
-      z-index: 999;
-      box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-    }
-    .brand-logo { 
-      font-size:1.1rem; 
-      display:flex; 
-      align-items:center; 
-      gap:8px; 
-      color:var(--gray-800); 
-      text-decoration:none; 
-      font-weight:500;
-      white-space: nowrap; 
-      flex-shrink: 0;
-    }
-    .brand-logo .material-symbols-outlined { 
-      font-family: 'Material Symbols Outlined' !important;
-      font-size:28px; 
-      color:var(--google-blue);
-    }
-    .nav-actions { 
-      display:flex; 
-      align-items:center; 
-      gap:16px; 
-      flex-shrink: 0;
-    }
-    .search-bar { 
-      display:flex; 
-      align-items:center; 
-      background:var(--gray-100); 
-      padding:8px 16px; 
-      border-radius:24px; 
-      width: 400px; 
-      flex-shrink: 1;
-      max-width: 600px;
-    }
-    .search-bar .material-symbols-outlined { 
-      font-family: 'Material Symbols Outlined' !important;
-      color:var(--gray-500); 
-      font-size:20px; 
-      flex-shrink: 0;
-    }
-    .search-bar input { 
-      border:none; 
-      background:transparent; 
-      color:var(--gray-800); 
-      width: calc(100% - 32px); 
-      font-size:14px; 
-      margin-left:8px; 
-      outline:none; 
-      flex-shrink: 1;
-    }
-    ::-webkit-input-placeholder { color: var(--gray-500); }
-    :-moz-placeholder { color: var(--gray-500); }
-    ::-moz-placeholder { color: var(--gray-500); }
-    :-ms-input-placeholder { color: var(--gray-500); }
-    .action-btn { 
-      width:40px; 
-      height:40px; 
-      display:flex; 
-      align-items:center; 
-      justify-content:center; 
-      border-radius:50%; 
-      cursor:pointer; 
-      transition:background 0.15s; 
-      position:relative; 
-      flex-shrink: 0;
-    }
-    .action-btn:hover { background:var(--gray-100); }
-    .action-btn .material-symbols-outlined { 
-      font-family: 'Material Symbols Outlined' !important;
-      font-size:24px; 
-      color:var(--gray-700); 
-    }
-    /* 面包屑（参考谷歌路径导航） */
-    .breadcrumb { 
-      padding:12px 24px; 
-      font-size:14px; 
-      color:var(--gray-700); 
-      display:flex; 
-      align-items:center; 
-      gap:8px; 
-      background:white; 
-      margin-top:64px;
-      border-bottom:1px solid var(--gray-100);
-    }
-    .breadcrumb-separator { 
-      color:var(--gray-500); 
-      font-size:16px;
-    }
-    .breadcrumb-item { 
-      cursor:pointer; 
-      color:var(--google-blue); 
-      transition:color 0.15s;
-    }
-    .breadcrumb-item:hover { 
-      color:var(--google-blue); 
-      text-decoration:underline; 
-    }
-    .back-btn { 
-      display:flex; 
-      align-items:center; 
-      gap:4px; 
-      color:var(--google-blue); 
-      cursor:pointer; 
-      padding:6px 12px; 
-      border-radius:4px; 
-      transition:background 0.15s;
-      margin-right:8px;
-    }
-    .back-btn:hover { background:var(--google-light-blue); }
-    .back-btn .material-symbols-outlined { 
-      font-family: 'Material Symbols Outlined' !important;
-      font-size:18px; 
-    }
-    /* 文件列表容器（参考谷歌网格/列表布局） */
-    .file-explorer { 
-      padding:24px; 
-      background:var(--gray-50); 
-      min-height:calc(100vh - 136px);
-    }
-    .view-controls { 
-      display:flex; 
-      align-items:center; 
-      gap:12px; 
-      margin-bottom:20px; 
-      padding:8px 0;
-    }
-    .view-btn { 
-      padding:6px 12px; 
-      background:white; 
-      border:1px solid var(--gray-200); 
-      border-radius:4px; 
-      cursor:pointer; 
-      display:flex; 
-      align-items:center; 
-      gap:6px; 
-      transition:background 0.15s, border-color 0.15s;
-    }
-    .view-btn.active { 
-      background:var(--google-light-blue); 
-      border-color:var(--google-blue); 
-      color:var(--google-blue);
-    }
-    .view-btn:hover:not(.active) { 
-      background:var(--gray-100); 
-      border-color:var(--gray-200);
-    }
-    .view-btn .material-symbols-outlined { 
-      font-family: 'Material Symbols Outlined' !important;
-      font-size:18px; 
-    }
-    .sort-selector { 
-      margin-left:auto; 
-      padding:6px 12px; 
-      background:white; 
-      border:1px solid var(--gray-200); 
-      border-radius:4px; 
-      cursor:pointer; 
-      display:flex; 
-      align-items:center; 
-      gap:6px; 
-      color:var(--gray-700);
-    }
-    .sort-selector .material-symbols-outlined { 
-      font-family: 'Material Symbols Outlined' !important;
-      font-size:18px; 
-    }
-    /* 网格视图（参考谷歌卡片布局） */
-    .grid-view { 
-      display:grid; 
-      grid-template-columns:repeat(auto-fill, minmax(220px, 1fr)); 
-      gap:16px; 
-      padding:0; 
-    }
-    .file-card { 
-      background:white; 
-      border-radius:var(--card-radius); 
-      padding:16px; 
-      display:flex; 
-      flex-direction:column; 
-      gap:12px; 
-      transition:box-shadow 0.2s, transform 0.1s; 
-      cursor:pointer; 
-      border:1px solid transparent;
-      height:180px; 
-      position:relative;
-      overflow:hidden;
-    }
-    .file-card:hover { 
-      box-shadow:var(--card-hover-shadow); 
-      transform:translateY(-1px); 
-      border-color:var(--gray-100);
-    }
-    .file-card:active { 
-      transform:translateY(0);
-    }
-    .file-icon-container { 
-      width:48px; 
-      height:48px; 
-      display:flex; 
-      align-items:center; 
-      justify-content:center; 
-      border-radius:8px; 
-      background:var(--google-light-blue);
-    }
-    .file-icon { 
-      font-family: 'Material Symbols Outlined' !important;
-      font-size:32px; 
-      color:var(--google-blue); 
-    }
-    .dir-card .file-icon-container { 
-      background:#f0f7ff;
-    }
-    .dir-card .file-icon { 
-      color:var(--google-blue);
-    }
-    .file-info { 
-      display:flex; 
-      flex-direction:column; 
-      gap:4px; 
-      flex:1;
-    }
-    .file-name { 
-      font-size:14px; 
-      color:var(--gray-800); 
-      word-break: break-word; 
-      white-space: nowrap; 
-      overflow: hidden; 
-      text-overflow: ellipsis;
-      font-weight:500;
-    }
-    .file-meta { 
-      display:flex; 
-      flex-direction:column; 
-      gap:2px; 
-      font-size:12px; 
-      color:var(--gray-500); 
-      margin-top:auto;
-    }
-    .file-meta > div { 
-      display:flex; 
-      align-items:center; 
-      gap:4px;
-    }
-    .file-meta .material-symbols-outlined { 
-      font-family: 'Material Symbols Outlined' !important;
-      font-size:14px; 
-    }
-    .file-actions { 
-      position:absolute; 
-      top:12px; 
-      right:12px; 
-      opacity:0; 
-      transition:opacity 0.15s;
-    }
-    .file-card:hover .file-actions { 
-      opacity:1;
-    }
-    .download-btn { 
-      padding:6px 10px; 
-      background:var(--google-light-blue); 
-      border-radius:4px; 
-      font-size:12px; 
-      color:var(--google-blue); 
-      cursor:pointer; 
-      transition:background 0.15s; 
-      border:none; 
-      display:flex; 
-      align-items:center; 
-      gap:4px;
-    }
-    .download-btn:hover { 
-      background:#dbe7fd; 
-    }
-    .download-btn .material-symbols-outlined { 
-      font-family: 'Material Symbols Outlined' !important;
-      font-size:16px; 
-    }
-    /* 列表视图（参考谷歌列表布局） */
-    .list-view { 
-      display:flex; 
-      flex-direction:column; 
-      gap:1px; 
-      background:white; 
-      border-radius:var(--card-radius); 
-      overflow:hidden;
-    }
-    .list-header { 
-      display:flex; 
-      padding:12px 24px; 
-      background:var(--gray-100); 
-      font-size:12px; 
-      color:var(--gray-500); 
-      font-weight:500;
-    }
-    .list-header > div { 
-      flex:1; 
-    }
-    .list-header > div:first-child { 
-      flex:0 0 400px; 
-    }
-    .list-header > div:nth-child(2) { 
-      flex:0 0 120px; 
-    }
-    .list-header > div:nth-child(3) { 
-      flex:0 0 200px; 
-    }
-    .list-item { 
-      display:flex; 
-      align-items:center; 
-      padding:12px 24px; 
-      background:white; 
-      transition:background 0.15s; 
-      cursor:pointer;
-    }
-    .list-item:hover { 
-      background:var(--gray-50);
-    }
-    .list-item > div { 
-      flex:1; 
-    }
-    .list-item > div:first-child { 
-      flex:0 0 400px; 
-      display:flex; 
-      align-items:center; 
-      gap:12px;
-    }
-    .list-item > div:nth-child(2) { 
-      flex:0 0 120px; 
-      font-size:13px; 
-      color:var(--gray-500);
-    }
-    .list-item > div:nth-child(3) { 
-      flex:0 0 200px; 
-      font-size:13px; 
-      color:var(--gray-500);
-    }
-    .list-item .file-icon-container { 
-      width:36px; 
-      height:36px;
-    }
-    .list-item .file-icon { 
-      font-size:24px;
-    }
-    .list-item .file-name { 
-      font-size:14px;
-    }
-    .list-item .file-actions { 
-      position:static; 
-      opacity:1; 
-      margin-left:auto; 
-    }
-    /* 加载状态（参考谷歌加载样式） */
-    .loading-state { 
-      grid-column:1/-1; 
-      text-align:center; 
-      padding:80px 0; 
-      color:var(--gray-500); 
-      display:flex; 
-      flex-direction:column; 
-      align-items:center; 
-      gap:12px;
-    }
-    .loading-spinner { 
-      width:40px; 
-      height:40px; 
-      border:4px solid var(--gray-100); 
-      border-top:4px solid var(--google-blue); 
-      border-radius:50%; 
-      animation: spin 1s linear infinite;
-    }
-    @keyframes spin { 0% { transform:rotate(0deg); } 100% { transform:rotate(360deg); } }
-    .loading-text { 
-      font-size:14px; 
-    }
-    /* 右键菜单（参考谷歌样式） */
-    #context-menu { 
-      position:absolute; 
-      background:white; 
-      border:1px solid var(--gray-200); 
-      border-radius:4px; 
-      padding:4px 0; 
-      list-style:none; 
-      width:180px; 
-      display:none; 
-      z-index:9999; 
-      box-shadow:0 4px 16px rgba(0,0,0,0.15);
-    }
-    #context-menu li { 
-      padding:8px 16px; 
-      cursor:pointer; 
-      display:flex; 
-      align-items:center; 
-      gap:8px; 
-      transition:background 0.15s;
-    }
-    #context-menu li:hover { 
-      background:var(--gray-100);
-    }
-    #context-menu li .material-symbols-outlined { 
-      font-family: 'Material Symbols Outlined' !important;
-      font-size:18px; 
-      color:var(--gray-500); 
-    }
-    /* 预览弹窗（参考谷歌弹窗） */
-    #preview-modal { 
-      position:fixed; 
-      top:0; 
-      left:0; 
-      width:100%; 
-      height:100%; 
-      background:rgba(0,0,0,0.5); 
-      display:none; 
-      align-items:center; 
-      justify-content:center; 
-      z-index:99999; 
-      overflow:auto;
-    }
-    #preview-modal > div { 
-      background:white; 
-      border-radius:12px; 
-      max-width:90%; 
-      width:100%; 
-      max-height:90vh; 
-      overflow:hidden; 
-      box-shadow:0 8px 24px rgba(0,0,0,0.2);
-    }
-    .preview-header { 
-      padding:16px 24px; 
-      border-bottom:1px solid var(--gray-100); 
-      display:flex; 
-      align-items:center; 
-      justify-content:space-between;
-    }
-    #preview-title { 
-      margin:0; 
-      font-size:18px; 
-      color:var(--gray-800); 
-      font-weight:500;
-    }
-    .preview-close { 
-      width:36px; 
-      height:36px; 
-      border-radius:50%; 
-      display:flex; 
-      align-items:center; 
-      justify-content:center; 
-      cursor:pointer; 
-      transition:background 0.15s;
-    }
-    .preview-close:hover { 
-      background:var(--gray-100);
-    }
-    .preview-close .material-symbols-outlined { 
-      font-family: 'Material Symbols Outlined' !important;
-      font-size:20px; 
-      color:var(--gray-500);
-    }
-    #preview-content { 
-      padding:24px; 
-      max-height:calc(90vh - 100px); 
-      overflow:auto; 
-      word-break:break-all;
-    }
-    .preview-image { 
-      max-width:100%; 
-      max-height:calc(90vh - 100px); 
-      object-fit:contain; 
-      display:block; 
-      margin:0 auto;
-    }
-    .preview-unsupported { 
-      color:var(--gray-500); 
-      text-align:center; 
-      padding:40px 0; 
-      font-size:14px;
-    }
-    /* 响应式适配 */
-    @media (max-width: 1200px) {
-      .search-bar { width: 300px; }
-      .list-item > div:first-child { flex:0 0 300px; }
-    }
-    @media (max-width: 768px) {
-      .nav-wrapper { padding:0 16px; height:56px; }
-      .search-bar { width: 180px; padding:6px 12px; }
-      .breadcrumb { padding:12px 16px; margin-top:56px; }
-      .file-explorer { padding:16px; }
-      .grid-view { grid-template-columns:repeat(auto-fill, minmax(160px, 1fr)); }
-      .file-card { height:160px; padding:12px; }
-      .file-icon-container { width:40px; height:40px; }
-      .file-icon { font-size:28px; }
-      .list-item > div:first-child { flex:0 0 200px; }
-      .list-item > div:nth-child(2), .list-item > div:nth-child(3) { flex:0 0 100px; font-size:12px; }
-      .view-controls { flex-wrap:wrap; gap:8px; }
-      .sort-selector { margin-left:0; margin-top:8px; width:100%; }
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>文件下载中心(BETA)</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+<style>
+@font-face {
+  font-family: 'U5Font';
+  src: url('https://github.com/EGGY-XuanQian/eggy-xuanqian.github.io/raw/refs/heads/main/Web/U5Font_Round_7744b500.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: 'U5Font', sans-serif !important;
+}
+:root {
+  --google-blue: #1a73e8;
+  --google-light-blue: #e8f0fe;
+  --google-gray-50: #f8f9fa;
+  --google-gray-100: #f1f3f4;
+  --google-gray-200: #e0e0e0;
+  --google-gray-500: #5f6368;
+  --google-gray-700: #3c4043;
+  --google-gray-800: #202124;
+  --animate-duration: 0.25s;
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes slideIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes slideOut {
+  from { opacity: 1; transform: translateY(0); }
+  to { opacity: 0; transform: translateY(-8px); }
+}
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+@keyframes scaleOut {
+  from { opacity: 1; transform: scale(1); }
+  to { opacity: 0; transform: scale(0.95); }
+}
+body {
+  background: var(--google-gray-50);
+}
+.nav-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 64px;
+  background: white;
+  border-bottom: 1px solid var(--google-gray-200);
+  padding: 0 24px;
+  width: 100%;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 100;
+}
+.brand-logo {
+  font-size: 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--google-gray-800);
+  text-decoration: none;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  min-width: 0;
+  flex-shrink: 1;
+}
+.brand-logo-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.brand-logo .material-symbols-outlined {
+  font-family: 'Material Symbols Outlined' !important;
+  font-size: 32px;
+  color: var(--google-blue);
+  flex-shrink: 0;
+}
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-shrink: 0;
+}
+.search-bar {
+  display: flex;
+  align-items: center;
+  background: var(--google-gray-100);
+  padding: 8px 16px;
+  border-radius: 8px;
+  width: 400px;
+  transition: all var(--animate-duration) ease;
+  flex-shrink: 1;
+  min-width: 0;
+}
+.search-bar:focus-within {
+  background: white;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+.search-bar .material-symbols-outlined {
+  font-family: 'Material Symbols Outlined' !important;
+  color: var(--google-gray-500);
+  font-size: 20px;
+  flex-shrink: 0;
+}
+.search-bar input {
+  border: none;
+  background: transparent;
+  color: var(--google-gray-800);
+  width: 100%;
+  font-size: 14px;
+  margin-left: 12px;
+  outline: none;
+  min-width: 0;
+}
+.menu-container {
+  position: relative;
+  flex-shrink: 0;
+}
+.menu-trigger {
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background var(--animate-duration) ease;
+  flex-shrink: 0;
+}
+.menu-trigger:hover {
+  background: var(--google-gray-100);
+}
+.menu-trigger .material-symbols-outlined {
+  font-family: 'Material Symbols Outlined' !important;
+  font-size: 24px;
+  color: var(--google-gray-700);
+}
+.dropdown-menu {
+  position: absolute;
+  top: 56px;
+  right: 0;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.15);
+  width: 240px;
+  opacity: 0;
+  transform: scale(0.95);
+  transform-origin: top right;
+  pointer-events: none;
+  z-index: 1000;
+  border: 1px solid var(--google-gray-200);
+  overflow: hidden;
+}
+.dropdown-menu.show {
+  opacity: 1;
+  transform: scale(1);
+  pointer-events: auto;
+  animation: scaleIn var(--animate-duration) ease forwards;
+}
+.dropdown-menu.hiding {
+  animation: scaleOut var(--animate-duration) ease forwards;
+}
+.menu-section {
+  padding: 12px 0;
+  border-bottom: 1px solid var(--google-gray-100);
+}
+.menu-section:last-child {
+  border-bottom: none;
+}
+.menu-section-title {
+  padding: 0 16px 8px;
+  font-size: 12px;
+  color: var(--google-gray-500);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.menu-item {
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  font-size: 14px;
+  color: var(--google-gray-700);
+}
+.menu-item:hover {
+  background: var(--google-gray-50);
+}
+.menu-item.active {
+  color: var(--google-blue);
+  background: var(--google-light-blue);
+}
+.menu-item .material-symbols-outlined {
+  font-family: 'Material Symbols Outlined' !important;
+  font-size: 20px;
+}
+.path-bar {
+  margin-top: 64px;
+  padding: 16px 24px;
+  background: white;
+  border-bottom: 1px solid var(--google-gray-200);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.back-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: var(--google-gray-100);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background var(--animate-duration) ease;
+  font-size: 14px;
+  color: var(--google-gray-700);
+  flex-shrink: 0;
+}
+.back-btn:hover {
+  background: var(--google-gray-200);
+}
+.back-btn .material-symbols-outlined {
+  font-family: 'Material Symbols Outlined' !important;
+  font-size: 18px;
+}
+.current-path {
+  font-size: 14px;
+  color: var(--google-gray-700);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.content-area {
+  padding: 24px;
+  min-height: calc(100vh - 120px);
+}
+.view-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 20px;
+}
+.list-view {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid var(--google-gray-200);
+}
+.file-card {
+  background: white;
+  border-radius: 8px;
+  padding: 16px;
+  border: 1px solid var(--google-gray-200);
+  cursor: pointer;
+  transition: all var(--animate-duration) ease;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  height: 180px;
+  position: relative;
+  animation: slideIn var(--animate-duration) ease forwards;
+  opacity: 0;
+}
+.file-card:hover {
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  border-color: var(--google-blue);
+}
+.file-card.dir {
+  border-color: var(--google-light-blue);
+}
+.file-icon-container {
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  background: var(--google-light-blue);
+  flex-shrink: 0;
+}
+.file-card.dir .file-icon-container {
+  background: #f0f7ff;
+}
+.file-icon {
+  font-family: 'Material Symbols Outlined' !important;
+  font-size: 28px;
+  color: var(--google-blue);
+}
+.file-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+.file-name {
+  font-size: 14px;
+  color: var(--google-gray-800);
+  font-weight: 500;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  word-break: break-all;
+}
+.file-meta {
+  font-size: 12px;
+  color: var(--google-gray-500);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: auto;
+  width: 100%;
+}
+.file-meta-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+  overflow: hidden;
+}
+.file-meta-item span:last-child {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.file-meta-item .material-symbols-outlined {
+  font-family: 'Material Symbols Outlined' !important;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+.list-item {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  background: white;
+  border-bottom: 1px solid var(--google-gray-100);
+  cursor: pointer;
+  transition: background var(--animate-duration) ease;
+  animation: slideIn var(--animate-duration) ease forwards;
+  opacity: 0;
+  min-width: 0;
+}
+.list-item:hover {
+  background: var(--google-gray-50);
+}
+.list-item .file-icon-container {
+  width: 36px;
+  height: 36px;
+  margin-right: 16px;
+  flex-shrink: 0;
+}
+.list-item .file-name {
+  flex: 1;
+  -webkit-line-clamp: 1;
+  min-width: 0;
+}
+.list-item .file-meta {
+  margin-top: 0;
+  margin-left: 16px;
+  min-width: 160px;
+  flex-direction: row;
+  gap: 16px;
+  flex-shrink: 0;
+}
+.initial-loading {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  opacity: 1;
+  transition: opacity 0.3s ease;
+}
+.initial-loading.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+.loading-state {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 80px 20px;
+  color: var(--google-gray-500);
+}
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid var(--google-gray-100);
+  border-top: 3px solid var(--google-blue);
+  border-radius: 50%;
+  margin: 0 auto 16px;
+  animation: spin 1s linear infinite;
+}
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+.empty-state {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 80px 20px;
+  color: var(--google-gray-500);
+}
+.empty-state .material-symbols-outlined {
+  font-size: 48px;
+  margin-bottom: 16px;
+  opacity: 0.5;
+}
+.context-menu {
+  position: absolute;
+  background: white;
+  border: 1px solid var(--google-gray-200);
+  border-radius: 8px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.15);
+  padding: 8px 0;
+  width: 180px;
+  display: none;
+  z-index: 1000;
+}
+.context-menu.show {
+  display: block;
+  animation: scaleIn var(--animate-duration) ease forwards;
+}
+.context-menu.hiding {
+  display: block;
+  animation: scaleOut var(--animate-duration) ease forwards;
+}
+.context-menu-item {
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  font-size: 14px;
+  color: var(--google-gray-700);
+}
+.context-menu-item:hover {
+  background: var(--google-gray-50);
+}
+.context-menu-item .material-symbols-outlined {
+  font-family: 'Material Symbols Outlined' !important;
+  font-size: 18px;
+  color: var(--google-gray-600);
+}
+.preview-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.5);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  animation: fadeIn var(--animate-duration) ease;
+}
+.preview-content {
+  background: white;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 800px;
+  max-height: 90vh;
+  overflow: hidden;
+  animation: scaleIn var(--animate-duration) ease;
+}
+.preview-header {
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--google-gray-200);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.preview-title {
+  font-size: 18px;
+  color: var(--google-gray-800);
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.preview-close {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background var(--animate-duration) ease;
+  flex-shrink: 0;
+}
+.preview-close:hover {
+  background: var(--google-gray-100);
+}
+.preview-close .material-symbols-outlined {
+  font-family: 'Material Symbols Outlined' !important;
+  font-size: 20px;
+  color: var(--google-gray-700);
+}
+.preview-body {
+  padding: 24px;
+  max-height: calc(90vh - 80px);
+  overflow: auto;
+}
+.preview-image {
+  max-width: 100%;
+  max-height: 70vh;
+  display: block;
+  margin: 0 auto;
+}
+.preview-text {
+  white-space: pre-wrap;
+  font-family: monospace;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--google-gray-800);
+}
+.preview-unsupported {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--google-gray-500);
+}
+.preview-unsupported .material-symbols-outlined {
+  font-size: 48px;
+  margin-bottom: 16px;
+  opacity: 0.5;
+}
+@media (max-width: 768px) {
+  .nav-wrapper {
+    padding: 0 16px;
+    height: 56px;
+  }
+  .brand-logo {
+    font-size: 1.1rem;
+    gap: 8px;
+  }
+  .brand-logo .material-symbols-outlined {
+    font-size: 28px;
+  }
+  .search-bar {
+    width: 180px;
+    padding: 6px 12px;
+  }
+  .path-bar {
+    margin-top: 56px;
+    padding: 12px 16px;
+  }
+  .content-area {
+    padding: 16px;
+  }
+  .view-container {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 12px;
+  }
+  .file-card {
+    height: 160px;
+    padding: 12px;
+  }
+  .file-icon-container {
+    width: 40px;
+    height: 40px;
+  }
+  .file-icon {
+    font-size: 24px;
+  }
+  .list-item .file-meta {
+    min-width: 120px;
+    gap: 8px;
+  }
+}
+@media (max-width: 440px) {
+  .brand-logo-text {
+    max-width: 120px;
+  }
+  .search-bar {
+    width: 140px;
+  }
+  .menu-trigger {
+    width: 40px;
+    height: 40px;
+  }
+}
+</style>
 </head>
 <body>
-  <!-- 导航栏（参考谷歌云端硬盘顶部） -->
-  <nav>
-    <div class="nav-wrapper">
-      <a href="#" class="brand-logo">
-        <span class="material-symbols-outlined">folder</span>
-        Code 文件夹下载中心
-      </a>
-      <div class="nav-actions">
-        <div class="search-bar">
-          <span class="material-symbols-outlined">search</span>
-          <input id="search" type="text" placeholder="搜索文件...">
-        </div>
-        <div class="action-btn" id="menuTrigger">
-          <span class="material-symbols-outlined">more_vert</span>
-        </div>
-      </div>
-    </div>
-  </nav>
-
-  <!-- 面包屑（参考谷歌路径导航） -->
-  <div class="breadcrumb" id="breadcrumb">
-    <div class="back-btn" id="backBtn" style="display:none;">
-      <span class="material-symbols-outlined">arrow_back</span>
-      <span>返回</span>
-    </div>
-    <span class="breadcrumb-item" data-path="">Code</span>
-    <span class="breadcrumb-separator">/</span>
-    <span class="current-path" id="currentPathDisplay"></span>
+<div class="initial-loading" id="initialLoading">
+  <div class="loading-state">
+    <div class="loading-spinner"></div>
+    <p>加载中...</p>
   </div>
-
-  <!-- 文件浏览器（核心区域，参考谷歌布局） -->
-  <div class="file-explorer">
-    <div class="view-controls">
-      <button class="view-btn active" id="gridViewBtn">
-        <span class="material-symbols-outlined">grid_view</span>
-        <span>网格视图</span>
-      </button>
-      <button class="view-btn" id="listViewBtn">
-        <span class="material-symbols-outlined">view_list</span>
-        <span>列表视图</span>
-      </button>
-      <div class="sort-selector" id="sortSelector">
-        <span class="material-symbols-outlined">sort</span>
-        <span id="currentSortText">按名称排序</span>
+</div>
+<nav>
+<div class="nav-wrapper">
+<a href="#" class="brand-logo">
+<span class="material-symbols-outlined">folder</span>
+<span class="brand-logo-text">文件下载中心</span>
+</a>
+<div class="nav-right">
+<div class="search-bar">
+<span class="material-symbols-outlined">search</span>
+<input type="text" placeholder="搜索文件" id="searchInput">
+</div>
+<div class="menu-container">
+<div class="menu-trigger" id="menuTrigger">
+<span class="material-symbols-outlined">more_vert</span>
+</div>
+<div class="dropdown-menu" id="dropdownMenu">
+<div class="menu-section">
+<div class="menu-section-title">文件视图</div>
+<div class="menu-item active" data-view="grid">
+<span class="material-symbols-outlined">grid_view</span>
+<span>网格视图</span>
+</div>
+<div class="menu-item" data-view="list">
+<span class="material-symbols-outlined">view_list</span>
+<span>列表视图</span>
+</div>
+</div>
+<div class="menu-section">
+<div class="menu-section-title">文件排序</div>
+<div class="menu-item" data-sort="size">
+<span class="material-symbols-outlined">sort</span>
+<span>大小排序</span>
+</div>
+<div class="menu-item active" data-sort="name">
+<span class="material-symbols-outlined">sort_by_alpha</span>
+<span>名称排序</span>
+</div>
+<div class="menu-item" data-sort="type">
+<span class="material-symbols-outlined">category</span>
+<span>类型排序</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</nav>
+<div class="path-bar" id="pathBar">
+<div class="back-btn" id="backBtn" style="display: none;">
+<span class="material-symbols-outlined">arrow_back</span>
+<span>返回</span>
+</div>
+<span class="current-path" id="currentPath"></span>
+</div>
+<main class="content-area">
+<div id="viewContainer" class="view-container"></div>
+</main>
+<div class="context-menu" id="contextMenu">
+<div class="context-menu-item" onclick="previewCurrentFile()">
+<span class="material-symbols-outlined">preview</span>
+<span>预览文件</span>
+</div>
+<div class="context-menu-item" onclick="downloadCurrentFile()">
+<span class="material-symbols-outlined">download</span>
+<span>下载文件</span>
+</div>
+<div class="context-menu-item" onclick="copyFileName()">
+<span class="material-symbols-outlined">content_copy</span>
+<span>复制名称</span>
+</div>
+</div>
+<div class="preview-modal" id="previewModal">
+<div class="preview-content">
+<div class="preview-header">
+<div class="preview-title" id="previewTitle"></div>
+<div class="preview-close" onclick="closePreview()">
+<span class="material-symbols-outlined">close</span>
+</div>
+</div>
+<div class="preview-body" id="previewBody"></div>
+</div>
+</div>
+<script>
+const GITHUB_CONFIG = {
+  owner: "EGGY-XuanQian",
+  repo: "eggy-xuanqian.github.io",
+  path: "Code",
+  branch: "main"
+};
+let currentFiles = [];
+let currentPath = "";
+let pathHistory = [];
+let isLoading = false;
+let currentView = "grid";
+let currentSort = "name";
+let currentFile = null;
+let animateLock = false;
+let lastMenuHideTime = 0;
+const viewContainer = document.getElementById("viewContainer");
+const searchInput = document.getElementById("searchInput");
+const menuTrigger = document.getElementById("menuTrigger");
+const dropdownMenu = document.getElementById("dropdownMenu");
+const menuItems = document.querySelectorAll(".menu-item");
+const backBtn = document.getElementById("backBtn");
+const currentPathEl = document.getElementById("currentPath");
+const contextMenu = document.getElementById("contextMenu");
+const previewModal = document.getElementById("previewModal");
+const initialLoading = document.getElementById("initialLoading");
+function init() {
+  setupEventListeners();
+  fetchFiles();
+}
+function setupEventListeners() {
+  menuTrigger.addEventListener("click", function(e) {
+    e.stopPropagation();
+    toggleDropdownMenu();
+  });
+  document.addEventListener("click", function(e) {
+    if (!menuTrigger.contains(e.target) && !dropdownMenu.contains(e.target)) {
+      hideDropdownMenu();
+    }
+    hideContextMenu();
+  });
+  menuItems.forEach(item => {
+    item.addEventListener("click", function() {
+      const view = this.dataset.view;
+      const sort = this.dataset.sort;
+      if (view && currentView !== view) {
+        setActiveView(view);
+      }
+      if (sort && currentSort !== sort) {
+        setActiveSort(sort);
+      }
+      hideDropdownMenu();
+    });
+  });
+  searchInput.addEventListener("input", function() {
+    filterFiles(this.value.trim().toLowerCase());
+  });
+  backBtn.addEventListener("click", function() {
+    if (pathHistory.length > 0 && !animateLock) {
+      navigateBack();
+    }
+  });
+  document.addEventListener("contextmenu", function(e) {
+    const target = e.target.closest(".file-card, .list-item");
+    if (target) {
+      e.preventDefault();
+    }
+  });
+  document.addEventListener("click", function(e) {
+    if (!contextMenu.contains(e.target)) {
+      hideContextMenu();
+    }
+  });
+}
+function toggleDropdownMenu() {
+  if (dropdownMenu.classList.contains("show")) {
+    hideDropdownMenu();
+  } else {
+    showDropdownMenu();
+  }
+}
+function showDropdownMenu() {
+  dropdownMenu.classList.remove("hiding");
+  dropdownMenu.classList.add("show");
+}
+function hideDropdownMenu() {
+  if (dropdownMenu.classList.contains("show")) {
+    dropdownMenu.classList.remove("show");
+    dropdownMenu.classList.add("hiding");
+    setTimeout(() => {
+      dropdownMenu.classList.remove("hiding");
+    }, 250);
+  }
+}
+function setActiveView(view) {
+  if (currentView === view || animateLock) return;
+  
+  animateTransition(() => {
+    currentView = view;
+    document.querySelectorAll('[data-view]').forEach(item => {
+      item.classList.toggle("active", item.dataset.view === view);
+    });
+    renderFiles(currentFiles);
+  });
+}
+function setActiveSort(sort) {
+  if (currentSort === sort || animateLock) return;
+  
+  currentSort = sort;
+  document.querySelectorAll('[data-sort]').forEach(item => {
+    item.classList.toggle("active", item.dataset.sort === sort);
+  });
+  sortFiles();
+}
+function animateTransition(callback) {
+  if (animateLock) return;
+  animateLock = true;
+  
+  viewContainer.style.animation = "slideOut var(--animate-duration) ease forwards";
+  
+  setTimeout(() => {
+    callback();
+    viewContainer.style.animation = "slideIn var(--animate-duration) ease forwards";
+    setTimeout(() => {
+      viewContainer.style.animation = "";
+      animateLock = false;
+    }, 250);
+  }, 250);
+}
+async function fetchFiles(pushHistory = true) {
+  if (isLoading) return;
+  isLoading = true;
+  showLoading();
+  
+  try {
+    const targetPath = currentPath ? `${GITHUB_CONFIG.path}/${currentPath}` : GITHUB_CONFIG.path;
+    const url = `https://api.github.com/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/contents/${targetPath}?ref=${GITHUB_CONFIG.branch}`;
+    const response = await fetch(url);
+    
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`);
+    }
+    
+    const data = await response.json();
+    
+    if (pushHistory && currentPath !== "") {
+      const lastHistory = pathHistory[pathHistory.length - 1];
+      if (lastHistory !== currentPath) {
+        pathHistory.push(currentPath);
+      }
+    }
+    
+    currentFiles = data.map(item => ({
+      name: item.name,
+      type: item.type,
+      size: item.size || 0,
+      sizeBytes: item.size,
+      downloadUrl: item.download_url,
+      lastModified: item.last_modified || item.git_last_modified || new Date().toISOString(),
+      path: item.path
+    }));
+    
+    sortFiles();
+    updatePathDisplay();
+    
+    setTimeout(() => {
+      hideInitialLoading();
+    }, 300);
+  } catch (error) {
+    showError();
+    console.error(error);
+    setTimeout(() => {
+      hideInitialLoading();
+    }, 300);
+  } finally {
+    isLoading = false;
+  }
+}
+function hideInitialLoading() {
+  initialLoading.classList.add("hidden");
+  setTimeout(() => {
+    initialLoading.style.display = "none";
+  }, 300);
+}
+function navigateBack() {
+  if (pathHistory.length === 0 || animateLock) return;
+  
+  animateTransition(() => {
+    const previousPath = pathHistory.pop();
+    currentPath = previousPath || "";
+    fetchFiles(false);
+    updatePathDisplay();
+  });
+}
+function sortFiles() {
+  currentFiles.sort((a, b) => {
+    if (a.type !== b.type) {
+      return a.type === "dir" ? -1 : 1;
+    }
+    if (currentSort === "name") {
+      return a.name.localeCompare(b.name);
+    } else if (currentSort === "size") {
+      return (b.sizeBytes || 0) - (a.sizeBytes || 0);
+    } else if (currentSort === "type") {
+      const extA = getFileExtension(a.name);
+      const extB = getFileExtension(b.name);
+      return extA.localeCompare(extB);
+    }
+    return 0;
+  });
+  renderFiles(currentFiles);
+}
+function getFileExtension(filename) {
+  return filename.split(".").pop().toLowerCase() || "";
+}
+function getFileIcon(file) {
+  if (file.type === "dir") return "folder";
+  const ext = getFileExtension(file.name);
+  const imageExts = ["jpg", "jpeg", "png", "gif", "bmp", "webp", "svg", "ico"];
+  const codeExts = ["js", "css", "html", "htm", "json", "xml", "py", "java", "cpp", "c", "php", "go", "ts", "jsx", "tsx", "sh", "bat", "md"];
+  const docExts = ["pdf", "doc", "docx", "xls", "xlsx", "ppt", "pptx", "txt", "rtf"];
+  const mediaExts = ["mp4", "avi", "mov", "mkv", "mp3", "wav", "flac", "ogg", "aac"];
+  const archiveExts = ["zip", "rar", "7z", "tar", "gz", "bz2"];
+  
+  if (imageExts.includes(ext)) return "image";
+  if (codeExts.includes(ext)) return "code";
+  if (docExts.includes(ext)) return "description";
+  if (mediaExts.includes(ext)) {
+    if (["mp4", "avi", "mov", "mkv"].includes(ext)) return "movie";
+    if (["mp3", "wav", "flac", "ogg", "aac"].includes(ext)) return "audio_file";
+  }
+  if (archiveExts.includes(ext)) return "folder_zip";
+  return "insert_drive_file";
+}
+function filterFiles(keyword) {
+  if (!keyword) {
+    renderFiles(currentFiles);
+    return;
+  }
+  const filtered = currentFiles.filter(file => 
+    file.name.toLowerCase().includes(keyword)
+  );
+  renderFiles(filtered);
+}
+function renderFiles(files) {
+  if (files.length === 0) {
+    viewContainer.innerHTML = `
+      <div class="empty-state">
+        <span class="material-symbols-outlined">folder_off</span>
+        <p>没有找到文件</p>
       </div>
-    </div>
-    <div id="file-list" class="grid-view animate-fade-in"></div>
-  </div>
-
-  <!-- 右键菜单 -->
-  <ul id="context-menu">
-    <li onclick="previewCurrentFile()"><span class="material-symbols-outlined">preview</span><span>预览</span></li>
-    <li onclick="downloadCurrentFile()"><span class="material-symbols-outlined">download</span><span>下载</span></li>
-    <li onclick="copyFileName()"><span class="material-symbols-outlined">content_copy</span><span>复制名称</span></li>
-  </ul>
-
-  <!-- 预览弹窗 -->
-  <div id="preview-modal">
-    <div>
-      <div class="preview-header">
-        <h3 id="preview-title"></h3>
-        <div class="preview-close" onclick="closePreview()">
-          <span class="material-symbols-outlined">close</span>
-        </div>
+    `;
+    return;
+  }
+  
+  if (currentView === "grid") {
+    renderGridView(files);
+  } else {
+    renderListView(files);
+  }
+}
+function renderGridView(files) {
+  viewContainer.className = "view-container";
+  viewContainer.innerHTML = files.map((file, index) => {
+    const isDir = file.type === "dir";
+    const displaySize = isDir ? "" : formatSize(file.size);
+    const displayTime = formatDate(file.lastModified);
+    
+    return `
+    <div class="file-card ${isDir ? "dir" : ""}" 
+         style="animation-delay: ${index * 30}ms"
+         onclick="handleFileClick('${file.type}', '${file.name}')"
+         oncontextmenu="showContextMenu(event, ${JSON.stringify(file).replace(/"/g, '&quot;')})">
+      <div class="file-icon-container">
+        <span class="material-symbols-outlined file-icon">${getFileIcon(file)}</span>
       </div>
-      <div id="preview-content"></div>
-    </div>
-  </div>
-
-  <script>
-    const GITHUB_CONFIG = {
-      owner: "EGGY-XuanQian",
-      repo: "eggy-xuanqian.github.io",
-      path: "Code",
-      branch: "main"
-    };
-    let currentFiles = [];
-    let currentPath = "";
-    let pathHistory = [];
-    let isGrid = true;
-    let currentFile = null;
-    let activeSort = "name";
-    let menuIsOpen = false;
-    let isLoading = false;
-    let animateLock = false;
-
-    // 初始化页面
-    window.onload = function() {
-      initEventListeners();
-      fetchGithubFiles("", false);
-    };
-
-    // 初始化事件监听
-    function initEventListeners() {
-      // 视图切换按钮
-      document.getElementById("gridViewBtn").addEventListener("click", function() {
-        if (!isGrid && !animateLock) {
-          isGrid = true;
-          updateViewMode();
-          this.classList.add("active");
-          document.getElementById("listViewBtn").classList.remove("active");
-        }
-      });
-
-      document.getElementById("listViewBtn").addEventListener("click", function() {
-        if (isGrid && !animateLock) {
-          isGrid = false;
-          updateViewMode();
-          this.classList.add("active");
-          document.getElementById("gridViewBtn").classList.remove("active");
-        }
-      });
-
-      // 排序选择器
-      const sortOptions = [
-        { id: "name", text: "按名称排序" },
-        { id: "size", text: "按大小排序" },
-        { id: "time", text: "按时间排序" }
-      ];
-      let sortIndex = 0;
-      document.getElementById("sortSelector").addEventListener("click", function() {
-        if (animateLock) return;
-        sortIndex = (sortIndex + 1) % sortOptions.length;
-        activeSort = sortOptions[sortIndex].id;
-        document.getElementById("currentSortText").textContent = sortOptions[sortIndex].text;
-        sortAndRenderFiles();
-      });
-
-      // 搜索框
-      document.getElementById("search").addEventListener("input", function(e) {
-        if (animateLock) return;
-        const keyword = e.target.value.toLowerCase().trim();
-        filterAndRenderFiles(keyword);
-      });
-
-      // 后退按钮
-      document.getElementById("backBtn").addEventListener("click", function() {
-        if (pathHistory.length === 0 || isLoading || animateLock) return;
-        navigateBack();
-      });
-
-      // 右键菜单隐藏
-      document.addEventListener("click", function() {
-        hideContextMenu();
-      });
-    }
-
-    // 导航后退
-    function navigateBack() {
-      animateLock = true;
-      const fileList = document.getElementById("file-list");
-      fileList.classList.add("animate-fade-out");
-      
-      setTimeout(() => {
-        const targetPath = pathHistory.pop();
-        currentPath = targetPath;
-        fetchGithubFiles(targetPath, false);
-        updateBreadcrumb();
-        
-        setTimeout(() => {
-          fileList.classList.remove("animate-fade-out");
-          animateLock = false;
-        }, getComputedStyle(document.documentElement).getPropertyValue('--animate-duration').replace('s', '') * 1000);
-      }, getComputedStyle(document.documentElement).getPropertyValue('--animate-duration').replace('s', '') * 1000);
-    }
-
-    // 更新视图模式（网格/列表）
-    function updateViewMode() {
-      animateLock = true;
-      const fileList = document.getElementById("file-list");
-      fileList.classList.add("animate-fade-out");
-      
-      setTimeout(() => {
-        if (isGrid) {
-          fileList.classList.remove("list-view");
-          fileList.classList.add("grid-view");
-        } else {
-          fileList.classList.remove("grid-view");
-          fileList.classList.add("list-view");
-        }
-        fileList.classList.remove("animate-fade-out");
-        animateLock = false;
-      }, getComputedStyle(document.documentElement).getPropertyValue('--animate-duration').replace('s', '') * 1000);
-    }
-
-    // 从GitHub获取文件
-    async function fetchGithubFiles(path = "", isPushHistory = true) {
-      if (isLoading) return;
-      isLoading = true;
-      const fileList = document.getElementById("file-list");
-      showLoadingState();
-
-      try {
-        const targetPath = path ? `${GITHUB_CONFIG.path}/${path}` : GITHUB_CONFIG.path;
-        const url = `https://api.github.com/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/contents/${targetPath}?ref=${GITHUB_CONFIG.branch}`;
-        const response = await fetch(url);
-
-        if (!response.ok) {
-          let errorMsg = "";
-          if (response.status === 404) errorMsg = "目录不存在";
-          else if (response.status === 403) errorMsg = "API访问受限，请1小时后重试";
-          else errorMsg = `加载失败 (${response.status})`;
-          throw new Error(errorMsg);
-        }
-
-        const data = await response.json();
-        if (isPushHistory && currentPath !== path) {
-          pathHistory.push(currentPath);
-        }
-        currentPath = path;
-        currentFiles = data.map(item => ({
-          name: item.name,
-          type: item.type,
-          size: formatFileSize(item.size),
-          sizeBytes: item.size,
-          downloadUrl: item.download_url,
-          rawUrl: item.download_url,
-          path: item.path,
-          lastModified: item.last_modified || new Date().toLocaleString()
-        }));
-
-        updateBreadcrumb();
-        sortAndRenderFiles();
-      } catch (error) {
-        showErrorState(error.message);
-        console.error(error);
-      } finally {
-        isLoading = false;
-      }
-    }
-
-    // 更新面包屑（参考谷歌路径显示）
-    function updateBreadcrumb() {
-      const breadcrumb = document.getElementById("breadcrumb");
-      const currentPathDisplay = document.getElementById("currentPathDisplay");
-      const pathParts = currentPath.split("/").filter(part => part);
-      
-      // 显示/隐藏后退按钮
-      const backBtn = document.getElementById("backBtn");
-      if (pathHistory.length > 0) {
-        backBtn.style.display = "flex";
-      } else {
-        backBtn.style.display = "none";
-      }
-
-      // 更新当前路径显示
-      if (pathParts.length === 0) {
-        currentPathDisplay.textContent = "";
-        currentPathDisplay.style.display = "none";
-      } else {
-        currentPathDisplay.textContent = pathParts.join(" / ");
-        currentPathDisplay.style.display = "inline";
-      }
-
-      // 绑定面包屑点击事件（仅保留根目录点击）
-      document.querySelectorAll(".breadcrumb-item").forEach(item => {
-        item.addEventListener("click", function() {
-          if (isLoading || animateLock) return;
-          const targetPath = this.getAttribute("data-path");
-          if (targetPath !== currentPath) {
-            navigateToPath(targetPath);
-          }
-        });
-      });
-    }
-
-    // 导航到指定路径
-    function navigateToPath(targetPath) {
-      animateLock = true;
-      const fileList = document.getElementById("file-list");
-      fileList.classList.add("animate-fade-out");
-      
-      setTimeout(() => {
-        pathHistory = [];
-        let tempCurrent = currentPath;
-        while (tempCurrent !== targetPath && tempCurrent !== "") {
-          const lastSlash = tempCurrent.lastIndexOf("/");
-          const parentPath = lastSlash === -1 ? "" : tempCurrent.substring(0, lastSlash);
-          if (tempCurrent !== targetPath) {
-            pathHistory.unshift(tempCurrent);
-          }
-          tempCurrent = parentPath;
-        }
-        fetchGithubFiles(targetPath, false);
-        
-        setTimeout(() => {
-          fileList.classList.remove("animate-fade-out");
-          animateLock = false;
-        }, getComputedStyle(document.documentElement).getPropertyValue('--animate-duration').replace('s', '') * 1000);
-      }, getComputedStyle(document.documentElement).getPropertyValue('--animate-duration').replace('s', '') * 1000);
-    }
-
-    // 排序并渲染文件
-    function sortAndRenderFiles() {
-      let sortedFiles = [...currentFiles];
-      sortedFiles.sort((a, b) => {
-        // 文件夹优先
-        if (a.type !== b.type) return a.type === "dir" ? -1 : 1;
-        
-        switch (activeSort) {
-          case "name": return a.name.localeCompare(b.name);
-          case "size": return (a.sizeBytes || 0) - (b.sizeBytes || 0);
-          case "time": return new Date(b.lastModified || 0) - new Date(a.lastModified || 0);
-          default: return 0;
-        }
-      });
-      currentFiles = sortedFiles;
-      renderFiles();
-    }
-
-    // 过滤并渲染文件
-    function filterAndRenderFiles(keyword) {
-      let filteredFiles = [...currentFiles];
-      if (keyword) {
-        filteredFiles = filteredFiles.filter(file => 
-          file.name.toLowerCase().includes(keyword)
-        );
-      }
-      renderFiles(filteredFiles);
-    }
-
-    // 渲染文件列表
-    function renderFiles(files = currentFiles) {
-      const fileList = document.getElementById("file-list");
-      fileList.innerHTML = "";
-
-      if (files.length === 0) {
-        fileList.innerHTML = `<div class="loading-state"><span class="material-symbols-outlined" style="font-size:48px; color:var(--gray-300);">folder_off</span><p class="loading-text">没有找到文件</p></div>`;
-        return;
-      }
-
-      files.forEach((file, index) => {
-        const card = createFileElement(file);
-        card.style.animationDelay = `${index * 15}ms`;
-        fileList.appendChild(card);
-      });
-    }
-
-    // 创建文件元素（网格/列表通用）
-    function createFileElement(file) {
-      const element = document.createElement(isGrid ? "div" : "div");
-      
-      if (isGrid) {
-        element.className = `file-card ${file.type === "dir" ? "dir-card" : ""} animate-slide-in`;
-        element.innerHTML = `
-          <div class="file-icon-container">
-            <span class="material-symbols-outlined file-icon">${getFileIcon(file.name, file.type)}</span>
+      <div class="file-info">
+        <div class="file-name" title="${file.name}">${file.name}</div>
+        <div class="file-meta">
+          ${!isDir ? `
+          <div class="file-meta-item">
+            <span class="material-symbols-outlined">storage</span>
+            <span title="${displaySize}">${displaySize}</span>
           </div>
-          <div class="file-info">
-            <div class="file-name">${file.name}</div>
-            <div class="file-meta">
-              ${file.type === "file" ? `<div><span class="material-symbols-outlined">storage</span>${file.size}</div>` : ""}
-              <div><span class="material-symbols-outlined">schedule</span>${formatDisplayTime(file.lastModified)}</div>
-            </div>
+          ` : ""}
+          <div class="file-meta-item">
+            <span class="material-symbols-outlined">schedule</span>
+            <span title="${displayTime}">${displayTime}</span>
           </div>
-          ${file.type === "file" ? `<div class="file-actions"><button class="download-btn" onclick="event.stopPropagation(); downloadFile('${file.download_url}', '${file.name}')"><span class="material-symbols-outlined">download</span>下载</button></div>` : ""}
+        </div>
+      </div>
+    </div>
+  `}).join("");
+}
+function renderListView(files) {
+  viewContainer.className = "list-view";
+  viewContainer.innerHTML = files.map((file, index) => {
+    const isDir = file.type === "dir";
+    const displaySize = isDir ? "" : formatSize(file.size);
+    const displayTime = formatDate(file.lastModified);
+    
+    return `
+    <div class="list-item" 
+         style="animation-delay: ${index * 20}ms"
+         onclick="handleFileClick('${file.type}', '${file.name}')"
+         oncontextmenu="showContextMenu(event, ${JSON.stringify(file).replace(/"/g, '&quot;')})">
+      <div class="file-icon-container">
+        <span class="material-symbols-outlined file-icon">${getFileIcon(file)}</span>
+      </div>
+      <div class="file-name" title="${file.name}">${file.name}</div>
+      <div class="file-meta">
+        ${!isDir ? `
+        <div class="file-meta-item">
+          <span class="material-symbols-outlined">storage</span>
+          <span title="${displaySize}">${displaySize}</span>
+        </div>
+        ` : ""}
+        <div class="file-meta-item">
+          <span class="material-symbols-outlined">schedule</span>
+          <span title="${displayTime}">${displayTime}</span>
+        </div>
+      </div>
+    </div>
+  `}).join("");
+}
+function handleFileClick(type, name) {
+  if (type === "dir") {
+    animateTransition(() => {
+      currentPath = currentPath ? `${currentPath}/${name}` : name;
+      fetchFiles();
+    });
+  }
+}
+function showContextMenu(e, file) {
+  e.preventDefault();
+  
+  if (file.type !== "file") {
+    return;
+  }
+  
+  const now = Date.now();
+  if (now - lastMenuHideTime < 100) {
+    return;
+  }
+  
+  hideContextMenu();
+  setTimeout(() => {
+    currentFile = file;
+    contextMenu.classList.remove("hiding");
+    contextMenu.classList.add("show");
+    
+    const x = Math.min(e.pageX, window.innerWidth - 200);
+    const y = Math.min(e.pageY, window.innerHeight - 150);
+    contextMenu.style.left = x + "px";
+    contextMenu.style.top = y + "px";
+  }, 10);
+}
+function hideContextMenu() {
+  if (contextMenu.classList.contains("show")) {
+    contextMenu.classList.remove("show");
+    contextMenu.classList.add("hiding");
+    lastMenuHideTime = Date.now();
+    setTimeout(() => {
+      contextMenu.classList.remove("hiding");
+      contextMenu.style.display = "none";
+    }, 250);
+  }
+}
+function previewCurrentFile() {
+  if (!currentFile || currentFile.type !== "file") return;
+  
+  const modal = document.getElementById("previewModal");
+  const title = document.getElementById("previewTitle");
+  const body = document.getElementById("previewBody");
+  
+  title.textContent = currentFile.name;
+  const ext = getFileExtension(currentFile.name);
+  const imageExts = ["jpg", "jpeg", "png", "gif", "bmp", "webp", "svg", "ico"];
+  const textExts = ["txt", "md", "js", "css", "html", "htm", "json", "xml", "py", "java", "cpp", "c", "php", "go", "ts", "jsx", "tsx", "sh", "bat"];
+  
+  if (imageExts.includes(ext)) {
+    body.innerHTML = `<img src="${currentFile.downloadUrl}" class="preview-image" alt="${currentFile.name}" onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\'preview-unsupported\'><span class=\'material-symbols-outlined\'>error</span><p>无法加载图片</p></div>';">`;
+  } else if (textExts.includes(ext)) {
+    fetch(currentFile.downloadUrl)
+      .then(response => {
+        if (!response.ok) throw new Error();
+        return response.text();
+      })
+      .then(text => {
+        body.innerHTML = `<pre class="preview-text">${escapeHtml(text)}</pre>`;
+      })
+      .catch(() => {
+        body.innerHTML = `
+          <div class="preview-unsupported">
+            <span class="material-symbols-outlined">error</span>
+            <p>无法加载文件内容</p>
+          </div>
         `;
-      } else {
-        element.className = `list-item animate-slide-in`;
-        element.innerHTML = `
-          <div>
-            <div class="file-icon-container">
-              <span class="material-symbols-outlined file-icon">${getFileIcon(file.name, file.type)}</span>
-            </div>
-            <div class="file-name">${file.name}</div>
-          </div>
-          <div>${file.type === "file" ? file.size : "-"}</div>
-          <div>${formatDisplayTime(file.lastModified)}</div>
-          ${file.type === "file" ? `<div class="file-actions"><button class="download-btn" onclick="event.stopPropagation(); downloadFile('${file.download_url}', '${file.name}')"><span class="material-symbols-outlined">download</span>下载</button></div>` : ""}
-        `;
-      }
-
-      // 文件夹点击导航
-      element.onclick = async () => {
-        if (file.type === "dir" && !isLoading && !animateLock) {
-          animateLock = true;
-          element.classList.add("animate-fade-out");
-          
-          setTimeout(() => {
-            const newPath = currentPath ? `${currentPath}/${file.name}` : file.name;
-            fetchGithubFiles(newPath, true);
-            
-            setTimeout(() => {
-              element.classList.remove("animate-fade-out");
-              animateLock = false;
-            }, getComputedStyle(document.documentElement).getPropertyValue('--animate-duration').replace('s', '') * 1000);
-          }, getComputedStyle(document.documentElement).getPropertyValue('--animate-duration').replace('s', '') * 1000);
-        }
-      };
-
-      // 右键菜单
-      element.oncontextmenu = (e) => {
-        e.preventDefault();
-        if (file.type === "file") {
-          currentFile = file;
-          showContextMenu(e);
-        }
-      };
-
-      return element;
-    }
-
-    // 获取文件图标（参考谷歌图标体系）
-    function getFileIcon(filename, type) {
-      if (type === "dir") return "folder";
-      
-      const ext = filename.split(".").pop().toLowerCase();
-      const imageExts = ["jpg", "jpeg", "png", "gif", "bmp", "webp"];
-      const textExts = ["txt", "md", "js", "css", "html", "json", "xml", "sh", "bat", "py", "java", "cpp", "c", "php", "go"];
-      const docExts = ["pdf", "doc", "docx", "xls", "xlsx", "ppt", "pptx"];
-      const videoExts = ["mp4", "avi", "mov", "mkv"];
-      const audioExts = ["mp3", "wav", "flac"];
-
-      if (imageExts.includes(ext)) return "image";
-      if (textExts.includes(ext)) return "description";
-      if (docExts.includes(ext)) return "insert_drive_file";
-      if (videoExts.includes(ext)) return "video_file";
-      if (audioExts.includes(ext)) return "audio_file";
-      return "attachment";
-    }
-
-    // 显示加载状态
-    function showLoadingState() {
-      const fileList = document.getElementById("file-list");
-      fileList.innerHTML = `<div class="loading-state"><div class="loading-spinner"></div><p class="loading-text">加载中...</p></div>`;
-    }
-
-    // 显示错误状态
-    function showErrorState(message) {
-      const fileList = document.getElementById("file-list");
-      fileList.innerHTML = `<div class="loading-state"><span class="material-symbols-outlined" style="font-size:48px; color:#d93025;">error</span><p class="loading-text">${message}</p></div>`;
-    }
-
-    // 格式化文件大小
-    function formatFileSize(bytes) {
-      if (bytes === undefined) return "";
-      if (bytes < 1024) return bytes + " B";
-      if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + " KB";
-      if (bytes < 1024 * 1024 * 1024) return (bytes / (1024 * 1024)).toFixed(1) + " MB";
-      return (bytes / (1024 * 1024 * 1024)).toFixed(1) + " GB";
-    }
-
-    // 格式化显示时间
-    function formatDisplayTime(timeStr) {
-      const date = new Date(timeStr);
-      return date.toLocaleString("zh-CN", { 
-        year: 'numeric', 
-        month: '2-digit', 
-        day: '2-digit', 
-        hour: '2-digit', 
-        minute: '2-digit' 
       });
+  } else {
+    body.innerHTML = `
+      <div class="preview-unsupported">
+        <span class="material-symbols-outlined">insert_drive_file</span>
+        <p>不支持预览此文件类型</p>
+      </div>
+    `;
+  }
+  modal.style.display = "flex";
+  hideContextMenu();
+}
+function closePreview() {
+  previewModal.style.display = "none";
+}
+function downloadCurrentFile() {
+  if (currentFile && currentFile.type === "file" && currentFile.downloadUrl) {
+    const a = document.createElement("a");
+    a.href = currentFile.downloadUrl;
+    a.download = currentFile.name;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  }
+  hideContextMenu();
+}
+function copyFileName() {
+  if (currentFile) {
+    navigator.clipboard.writeText(currentFile.name);
+  }
+  hideContextMenu();
+}
+function escapeHtml(text) {
+  const div = document.createElement("div");
+  div.textContent = text;
+  return div.innerHTML;
+}
+function formatSize(bytes) {
+  if (!bytes) return "0 B";
+  if (bytes < 1024) return bytes + " B";
+  if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + " KB";
+  if (bytes < 1024 * 1024 * 1024) return (bytes / (1024 * 1024)).toFixed(1) + " MB";
+  return (bytes / (1024 * 1024 * 1024)).toFixed(1) + " GB";
+}
+function formatDate(dateString) {
+  if (!dateString) return "未知时间";
+  
+  try {
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) {
+      return "未知时间";
     }
-
-    // 右键菜单操作
-    function showContextMenu(e) {
-      const menu = document.getElementById("context-menu");
-      menu.style.display = "block";
-      menu.style.left = `${Math.min(e.pageX, window.innerWidth - 190)}px`;
-      menu.style.top = `${Math.min(e.pageY, window.innerHeight - 120)}px`;
-      e.stopPropagation();
-    }
-
-    function hideContextMenu() {
-      const menu = document.getElementById("context-menu");
-      menu.style.display = "none";
-    }
-
-    // 文件下载
-    function downloadFile(url, filename) {
-      if (!url) return;
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = filename;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-    }
-
-    function downloadCurrentFile() {
-      if (currentFile && currentFile.type === "file") {
-        downloadFile(currentFile.download_url, currentFile.name);
-      }
-      hideContextMenu();
-    }
-
-    // 复制文件名
-    function copyFileName() {
-      if (currentFile) {
-        navigator.clipboard.writeText(currentFile.name);
-      }
-      hideContextMenu();
-    }
-
-    // 预览文件
-    function previewCurrentFile() {
-      if (!currentFile || currentFile.type === "dir") return;
-      
-      const modal = document.getElementById("preview-modal");
-      const title = document.getElementById("preview-title");
-      const content = document.getElementById("preview-content");
-      
-      title.textContent = currentFile.name;
-      content.innerHTML = "";
-      modal.style.display = "flex";
-      
-      loadFilePreview(currentFile, content);
-      hideContextMenu();
-    }
-
-    async function loadFilePreview(file, contentEl) {
-      if (!file.rawUrl) {
-        contentEl.innerHTML = `<div class="preview-unsupported"><span class="material-symbols-outlined" style="font-size:32px; margin-bottom:16px; display:block;">error</span>无法预览此文件类型</div>`;
-        return;
-      }
-
-      const ext = file.name.split(".").pop().toLowerCase();
-      const imageExts = ["jpg", "jpeg", "png", "gif", "bmp", "webp"];
-      const textExts = ["txt", "md", "js", "css", "html", "json", "xml", "sh", "bat", "py", "java", "cpp", "c", "php", "go"];
-
-      try {
-        if (imageExts.includes(ext)) {
-          contentEl.innerHTML = `<img src="${file.rawUrl}" class="preview-image" alt="${file.name}">`;
-        } else if (textExts.includes(ext)) {
-          const response = await fetch(file.rawUrl);
-          if (!response.ok) throw new Error("预览内容获取失败");
-          const text = await response.text();
-          contentEl.innerHTML = `<pre style="white-space: pre-wrap; word-wrap: break-word; font-size:14px; line-height:1.6; color:var(--gray-800);">${escapeHtml(text)}</pre>`;
-        } else {
-          contentEl.innerHTML = `<div class="preview-unsupported"><span class="material-symbols-outlined" style="font-size:32px; margin-bottom:16px; display:block;">insert_drive_file</span>不支持该文件类型预览</div>`;
-        }
-      } catch (error) {
-        contentEl.innerHTML = `<div class="preview-unsupported"><span class="material-symbols-outlined" style="font-size:32px; margin-bottom:16px; display:block;">error</span>预览加载失败</div>`;
-      }
-    }
-
-    // HTML转义
-    function escapeHtml(text) {
-      return text
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#039;');
-    }
-
-    // 关闭预览
-    function closePreview() {
-      const modal = document.getElementById("preview-modal");
-      modal.style.display = "none";
-    }
-  </script>
+    
+    const now = new Date();
+    const diffMs = now - date;
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMs / 3600000);
+    const diffDays = Math.floor(diffMs / 86400000);
+    const diffWeeks = Math.floor(diffDays / 7);
+    const diffMonths = Math.floor(diffDays / 30);
+    
+    if (diffMins < 1) return "刚刚";
+    if (diffMins < 60) return `${diffMins}分钟前`;
+    if (diffHours < 24) return `${diffHours}小时前`;
+    if (diffDays < 7) return `${diffDays}天前`;
+    if (diffWeeks < 4) return `${diffWeeks}周前`;
+    if (diffMonths < 12) return `${diffMonths}个月前`;
+    return `${Math.floor(diffDays / 365)}年前`;
+  } catch (error) {
+    return "未知时间";
+  }
+}
+function updatePathDisplay() {
+  backBtn.style.display = pathHistory.length > 0 ? "flex" : "none";
+  currentPathEl.textContent = currentPath ? `/${currentPath}` : "/";
+}
+function showLoading() {
+  viewContainer.innerHTML = `
+    <div class="loading-state">
+      <div class="loading-spinner"></div>
+      <p>加载中...</p>
+    </div>
+  `;
+}
+function showError() {
+  viewContainer.innerHTML = `
+    <div class="empty-state">
+      <span class="material-symbols-outlined">error</span>
+      <p>加载失败，请稍后重试</p>
+    </div>
+  `;
+}
+window.onload = init;
+</script>
 </body>
 </html>
